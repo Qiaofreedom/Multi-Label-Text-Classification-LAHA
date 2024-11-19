@@ -11,16 +11,20 @@ list_LA_test=[]
 y_one_hot_batch_list_all_train=[]
 y_one_hot_batch_list_all_test=[]
 def get_embedding_vector(text,max_len):
+ # 这段代码实现了将输入文本 (text) 转换为一个基于 BERT 模型的嵌入矩阵。代码提取了 BERT 中每个 Token 的嵌入向量，并使用最后 4 层的嵌入向量求和作为最终表示
     tokenizer = BertTokenizer.from_pretrained(
         r".\data\bert_base_uncased_pytorch")
     model = BertModel.from_pretrained(
         r".\data\bert_base_uncased_pytorch")
-    tokenized_text = tokenizer.tokenize(text)
-    indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
-    tokens_tensor = torch.tensor([indexed_tokens])
+    tokenized_text = tokenizer.tokenize(text)  # 将输入文本分词，例如 "Hello world!" → ['hello', 'world', '!']。
+    indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)  # 将分词结果转换为 BERT 的 Token 索引值，例如 [7592, 2088, 999]
+    tokens_tensor = torch.tensor([indexed_tokens])  # 将 Token 索引值转化为 PyTorch Tensor，形状为 [1, seq_len]，例如 [1, 3]。
     with torch.no_grad():
-        last_hidden_states = model(tokens_tensor)[0]
-    token_embeddings = []
+        last_hidden_states = model(tokens_tensor)[0] 
+        # 将 Token Tensor 输入 BERT 模型，返回一个包含所有层的输出。
+        # 取模型最后隐藏层的输出，形状为 [batch_size, seq_len, hidden_size]，例如 [1, 3, 768]。
+     
+    token_embeddings = []  # 初始化 token_embeddings 用于存储每个 Token 的所有层的嵌入
     if max_len==None:
         max_len = len(tokenized_text)
     if len(tokenized_text)>=max_len:
@@ -28,7 +32,7 @@ def get_embedding_vector(text,max_len):
             hidden_layers = []
             for layer_i in range(len(last_hidden_states)):
                 vec = last_hidden_states[layer_i][0][token_i]
-                hidden_layers.append(vec)
+                hidden_layers.append(vec)  # 对当前 Token 提取 每一层的嵌入，存储到 hidden_layers
             token_embeddings.append(hidden_layers)  # token_embeddings 是一个列表，每个元素包含该 token 的所有层的嵌入向量。
         summed_last_4_layers = [torch.sum(torch.stack(
             layer)[-4:], 0) for layer in token_embeddings]  # 对每个 token，提取其最后 4 层的嵌入（[-4:]），将这 4 层的嵌入 按元素求和（torch.sum），得到该 token 的最终嵌入。
