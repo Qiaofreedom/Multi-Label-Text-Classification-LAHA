@@ -49,6 +49,12 @@ def get_embedding_vector(text,max_len):
         return output
 
 def get_embedding_vector_label(one_hot_code):
+ # 从预存文件加载所有标签的嵌入向量。
+ # 遍历 one-hot 编码：
+ # 对于激活的标签（值为 '1'），添加对应的嵌入向量。
+ # 对于未激活的标签（值为 '0'），添加一个零向量。
+ # 返回最终的嵌入矩阵。
+ 
     each_label_vector = torch.from_numpy(np.load('.\data\...'))
     tmp_list = []
     for i in range(len(one_hot_code)):
