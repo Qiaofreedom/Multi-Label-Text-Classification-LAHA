@@ -1,4 +1,4 @@
-import numpy as np
+ import numpy as np
 from tqdm import tqdm
 from pytorch_pretrained_bert import BertTokenizer, BertModel
 import torch
@@ -24,15 +24,15 @@ def get_embedding_vector(text,max_len):
     if max_len==None:
         max_len = len(tokenized_text)
     if len(tokenized_text)>=max_len:
-        for token_i in range(max_len):
+        for token_i in range(max_len):  # 对每个 token（token_i），提取其所有层的嵌入（BERT 通常有 12 层）
             hidden_layers = []
             for layer_i in range(len(last_hidden_states)):
                 vec = last_hidden_states[layer_i][0][token_i]
                 hidden_layers.append(vec)
-            token_embeddings.append(hidden_layers)
+            token_embeddings.append(hidden_layers)  # token_embeddings 是一个列表，每个元素包含该 token 的所有层的嵌入向量。
         summed_last_4_layers = [torch.sum(torch.stack(
-            layer)[-4:], 0) for layer in token_embeddings]
-        output = torch.stack(summed_last_4_layers, dim=0)
+            layer)[-4:], 0) for layer in token_embeddings]  # 对每个 token，提取其最后 4 层的嵌入（[-4:]），将这 4 层的嵌入 按元素求和（torch.sum），得到该 token 的最终嵌入。
+        output = torch.stack(summed_last_4_layers, dim=0) # 将所有 token 的嵌入堆叠成一个矩阵，形状为 [max_len, hidden_size]，即 [max_len, 768]。
         return output
     else:
         for token_i in range(len(tokenized_text)):
