@@ -145,12 +145,12 @@ def train(attention_model,train_loader,test_loader,criterion,opt,sentence_data_t
                 y_embedding_list.append(get_embedding_vector_label(y_words))
             x = torch.stack(x_embedding_list, 0)
             y = torch.stack(y_embedding_list, 0)
-            VD = x
-            VL = y
+            VD = x  # Document Embedding Vector
+            VL = y  # Label Embedding Vector
             VC = F.softmax(get_CosSim_OneByOne(VD, VL,batch_size=2),
-                               dim=1)
-            NVD = get_embeddings_after_NVD(VC, VD, alpha=0.1)
-            NVC = F.softmax(get_CosSim_OneByOne(NVD, VL,batch_size=2),
+                               dim=1)  # Cosine Similarity between Document Embedding Vector & Label Embedding Vector
+            NVD = get_embeddings_after_NVD(VC, VD, alpha=0.1) # New Embedding Vector
+            NVC = F.softmax(get_CosSim_OneByOne(NVD, VL,batch_size=2), # Cosine Similarity between New Embedding Vector & Label Embedding Vector
                               dim=1)
             LA = torch.bmm(NVC, VL)
             list_NVD_train.append(NVD)
