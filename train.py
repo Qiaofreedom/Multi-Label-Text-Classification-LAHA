@@ -1,4 +1,4 @@
- import numpy as np
+import numpy as np
 from tqdm import tqdm
 from pytorch_pretrained_bert import BertTokenizer, BertModel
 import torch
@@ -149,10 +149,10 @@ def train(attention_model,train_loader,test_loader,criterion,opt,sentence_data_t
             VL = y  # Label Embedding Vector
             VC = F.softmax(get_CosSim_OneByOne(VD, VL,batch_size=2),
                                dim=1)  # Cosine Similarity between Document Embedding Vector & Label Embedding Vector
-            NVD = get_embeddings_after_NVD(VC, VD, alpha=0.1) # New Embedding Vector
+            NVD = get_embeddings_after_NVD(VC, VD, alpha=0.1) # New Embedding Vector 也就是 Document Self Attention
             NVC = F.softmax(get_CosSim_OneByOne(NVD, VL,batch_size=2), # Cosine Similarity between New Embedding Vector & Label Embedding Vector
                               dim=1)
-            LA = torch.bmm(NVC, VL)
+            LA = torch.bmm(NVC, VL) # Label Attention
             list_NVD_train.append(NVD)
             list_LA_train.append(LA)
             y_one_hot_batch = torch.from_numpy(np.array(y_one_hot_list_batch))
