@@ -98,7 +98,7 @@ class AttentionAndCombineNet(BasicModule):
             weight1 = self.weight1
             weight2 = 1 - weight1
             co_t = weight1 *co_att_lab_doc + weight2 * co_att_doc_lab
-            if self.r == 1:
+            if self.r == 1:  # historical attention. 第 t-1 个epoch 和 第t个epoch
                 if now_epoch == 1:
                     print("this epoch is the first epoch")
                     HT_t = co_t
@@ -115,7 +115,7 @@ class AttentionAndCombineNet(BasicModule):
                     HT_t = F.softmax(self.W2(F.tanh(torch.bmm(co_t, F.tanh(self.W1(co_tminus1.transpose(1, 2)))))))
                     print("only fusing the last epoch")
             else:
-                print("fusing all the history epochs")
+                print("fusing all the history epochs") # historical attention. 前 t-1 个epoch的平均值和 第t个epoch
                 if now_epoch== 1:
                     print("this epoch is the first epoch")
                     HT_t = co_t
